@@ -9,7 +9,7 @@ void init_sudoku(SudokuBoard *p_board)
     p_board->data = malloc(BOARD_SIZE * sizeof(Cell *));
     for (int i = 0; i < BOARD_SIZE; i++)
     {
-        p_board->data[i] = malloc(BOARD_SIZE * sizeof(Cell));
+        p_board->data[i] = malloc(BOARD_SIZE * sizeof(Cell ));
         p_board->p_rows[i] = malloc(BOARD_SIZE * sizeof(Cell *));
         p_board->p_cols[i] = malloc(BOARD_SIZE * sizeof(Cell *));
         p_board->p_boxes[i] = malloc(BOARD_SIZE * sizeof(Cell *));
@@ -78,12 +78,9 @@ void unset_candidate(Cell *cell, int value)
     cell->candidates[value - 1] = 0;
     cell->num_candidates -= 1;
 }
-
-bool is_candidate(Cell *cell, int value)
-{
+bool is_candidate(Cell *cell, int value) {
     return cell->candidates[value - 1] == 1;
 }
-
 void set_candidates(Cell *cell, int *candidates, int size)
 {
     // reset candidates
@@ -219,4 +216,13 @@ void print_candidate_num(SudokuBoard *p_board)
         }
         printf("\n");
     }
+}
+
+void show_sudoku(SudokuBoard *p_board) {
+    for(int i = 0; i < BOARD_SIZE; i++) {
+        for(int j = 0; j < BOARD_SIZE; j++) {
+            printf("%d ", p_board->data[i][j].value);
+        }
+        printf("\n");
+    }   
 }

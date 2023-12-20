@@ -49,31 +49,34 @@ int toInteger(int *bin_array, int len)
     for (int i = 0; i < len; i++)
     {
         num += bin_array[i] * (1 << i);
+        // printf("%d\n", bin_array[i]);
     }
+    // printf("_________\n");
+    // printf("%d\n", num);
     return num;
 }
 
 void load_cell_candidates(Cell *p_cell, char *textData)
 {
     int left_num = get_index(mapping, 32, textData[0]);
-    int right_num = get_index(mapping, 32, textData[1]);
+    int right_num = get_index(mapping, 32, textData[1]); // chạy for tìm index của ký tự đó
 
     int bin_candidates[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    toBinary(right_num, &(bin_candidates[0]));
-    toBinary(left_num, &(bin_candidates[5]));
+    toBinary(right_num, &(bin_candidates[0])); // chuyển index vừa tìm thành số nhị phân
+    toBinary(left_num, &(bin_candidates[5])); // chuyển index vừa tìm thành số nhị phân
 
     int counter = 0;
     int candidates[BOARD_SIZE];
 
     for (int cand = 1; cand <= 9; cand++)
     {
-        if (bin_candidates[cand])
-            candidates[counter++] = cand;
+        if (bin_candidates[cand]) // nếu bit ở mã bin_candidate được bật.
+            candidates[counter++] = cand; // giá trị sudoku của ô có thể chứa là cand
     }
 
     set_candidates(p_cell, candidates, counter);
-    if (bin_candidates[0])
+    if (bin_candidates[0]) // ô đó ko đc phép sửa trong game
         p_cell->fixed = true;
     else
         p_cell->fixed = false;
@@ -83,7 +86,7 @@ void load_sudoku_with_candidates(SudokuBoard *p_board, char *textData)
 {
     for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++)
     {
-        load_cell_candidates(&(p_board->data[i / BOARD_SIZE][i % BOARD_SIZE]), textData);
+        load_cell_candidates(&(p_board->data[i / BOARD_SIZE][i % BOARD_SIZE]), textData); // đổi chuỗi hash sang giá trị ô (hai ký tự là 1 số)
         textData += 2;
     }
 }
@@ -142,16 +145,16 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    SudokuBoard *board = malloc(sizeof(SudokuBoard));
-    init_sudoku(board);
-    load_sudoku_with_candidates(board, argv[1]);
+    SudokuBoard *board = malloc(sizeof(SudokuBoard)); // -> sudoku.h
+    init_sudoku(board);// nhập bảng sudoku -> utils.c;
+    load_sudoku_with_candidates(board, argv[1]); 
 
     FILE *pipe = fdopen(atoi(argv[3]), "w");
 
     int num_detected = get_method(argv[2])(board);
 
-    char *outText = malloc(BOARD_SIZE * BOARD_SIZE * 2 + 1);
-    outText[0] = '\0';
+    char *outText = malloc(BOARD_SIZE * BOARD_SIZE * 2 + 1); // chuỗi đại diện mã hash 
+    outText[0] = '\0'; // khởi tạo con trỏ đầu bằng rỗng.
 
     print_sudoku_with_candidates(board, outText);
 
