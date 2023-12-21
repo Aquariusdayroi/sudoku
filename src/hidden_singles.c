@@ -72,11 +72,10 @@ int hidden_singles(SudokuBoard *p_board) {
             // printf("Value: %d\n", value);
             p_cell->value = value;
             for(int cand = 1; cand <= BOARD_SIZE; cand++) {
-                if(cand != value) {
+                if(cand != value && is_candidate(p_cell, cand)) {
                     unset_candidate(p_cell, cand); // xóa đi những giá trị có thể xảy ra ở ô đó.
                 }
             } 
-            p_cell->num_candidates = 1;
             ++ret; // số lượng ô hiden singel tìm thấy
         }
     }
