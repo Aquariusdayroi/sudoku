@@ -1,9 +1,36 @@
 #include "hidden_triples.h"
-#include <stddef.h>
+#include <stdio.h>
 
 bool isValid(int n) 
 {
     return n == 2 || n == 3;
+}
+
+void Exist(Cell **list_cell, int *counter, Cell *cell)
+{
+    if(cell == NULL) return;
+    for(int i = 0; i < *counter; i++)
+    {
+        if(list_cell[i] == cell)
+        {
+            return;
+        }
+    }
+    list_cell[(*counter)++] = cell;
+}
+
+bool check(Cell **list_cell, int candidate)
+{
+    return  is_candidate(list_cell[0], candidate) 
+            && is_candidate(list_cell[1], candidate) 
+            && is_candidate(list_cell[2], candidate);
+}
+
+bool check1(Cell *cell, int cand1, int cand2, int cand3)
+{
+    return  is_candidate(cell, cand1) 
+            + is_candidate(cell, cand2)
+            + is_candidate(cell, cand3) >= 2;
 }
 
 void hidden_triple_unit(Cell **p_cells, int *p_counter) 
@@ -29,7 +56,67 @@ void hidden_triple_unit(Cell **p_cells, int *p_counter)
         }
     }
 
-    
+    for(int cand1 = 1; cand1 < BOARD_SIZE; cand1++) 
+    {
+        if(isValid(n[cand1]) == false) continue;
+
+        for(int cand2 = cand1 + 1; cand2 < BOARD_SIZE; cand2++)
+        {
+            if(isValid(n[cand2]) == false) continue;
+
+            for(int cand3 = cand2 + 1; cand3 <= BOARD_SIZE; cand3++)
+            {
+                if(isValid(n[cand3]) == false) continue;
+
+                Cell *list_cell[9];
+ 
+                int counter = 0;
+
+                for(int kCell = 0; kCell < 3; kCell++)
+                {
+                    Exist(list_cell, &counter, coords[cand1][kCell]);
+                    Exist(list_cell, &counter, coords[cand2][kCell]);
+                    Exist(list_cell, &counter, coords[cand3][kCell]);
+                }
+
+                if(counter != 3) continue;
+
+                if((check(list_cell, cand1) || check(list_cell, cand2) || check(list_cell, cand3))
+                    && check1(list_cell[0], cand1, cand2, cand3)
+                    && check1(list_cell[1], cand1, cand2, cand3)
+                    && check1(list_cell[2], cand1, cand2, cand3))
+                {
+                    bool result = false;
+                    for(int kCell = 0; kCell < 3; kCell++)
+                    {
+                        Cell *cell = list_cell[kCell];
+
+                        if(cell->num_candidates <= 3) continue;
+                        result = true;
+                        for(int rm_cand = 1; rm_cand <= BOARD_SIZE; rm_cand++)
+                        {
+                            if(rm_cand != cand1 && rm_cand != cand2 && rm_cand != cand3 && is_candidate(cell, rm_cand))
+                            {
+                                unset_candidate(cell, rm_cand);
+                            }
+                        }
+                    }
+
+                    // printf("cand: %d %d %d %s\n", cand1, cand2, cand3, result ? "YES" : "NO");
+                    // if(result)
+                    // {
+                    //     printf("Cell: {%d, %d}, {%d, %d}, {%d, %d}\n", 
+                    //                 list_cell[0]->row_index, list_cell[0]->col_index,
+                    //                 list_cell[1]->row_index, list_cell[1]->col_index,
+                    //                 list_cell[2]->row_index, list_cell[2]->col_index);
+                    // }
+
+                    if(result) (*p_counter)++;
+                }
+
+            }
+        }
+    }
 }
 
 int hidden_triples(SudokuBoard *p_board)
