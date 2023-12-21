@@ -49,10 +49,7 @@ int toInteger(int *bin_array, int len)
     for (int i = 0; i < len; i++)
     {
         num += bin_array[i] * (1 << i);
-        // printf("%d\n", bin_array[i]);
     }
-    // printf("_________\n");
-    // printf("%d\n", num);
     return num;
 }
 
